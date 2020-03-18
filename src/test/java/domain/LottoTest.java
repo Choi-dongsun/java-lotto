@@ -2,6 +2,7 @@ package domain;
 
 import org.junit.Before;
 import org.junit.Test;
+import vo.LottoNumber;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package domain;
+package vo;
 
 import org.junit.Test;
 import vo.Rank;

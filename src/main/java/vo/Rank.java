@@ -1,5 +1,7 @@
 package vo;
 
+import java.util.Map;
+
 public enum Rank {
     FIRST(6, 2_000_000_000),
     SECOND(5, 30_000_000),
@@ -40,4 +42,12 @@ public enum Rank {
     public long calculateTotalEarningMoney(int numOfWinner) {
         return winningMoney * numOfWinner;
     }
+
+//    public static double calculateTotalRateOfReturn(Map<Rank, Integer> rankCount) {
+//        long sum = 0;
+//        for (Rank value : values()) {
+//            sum += value.calculateTotalEarningMoney(rankCount.get(value));
+//        }
+//        return (sum / (double) amount) * 100;
+//    }
 }

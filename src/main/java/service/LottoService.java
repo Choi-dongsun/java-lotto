@@ -10,6 +10,8 @@ import generator.AutoLottoGenerator;
 import generator.IntegratedLottoGenerator;
 import generator.LottoGenerator;
 import generator.ManualLottoGenerator;
+import repository.LottoRepository;
+import repository.ResultRepository;
 import vo.Rank;
 
 import java.util.Arrays;
@@ -21,9 +23,14 @@ import static java.lang.Integer.*;
 import static util.ParseUtil.parseArray;
 
 public class LottoService {
-    // 원래 둘 다 DB 저장
-    private List<LottoDto> lottos;
-    private Money money;
+    private Money money; // DB 귀찮아서 패스
+    private final LottoRepository lottoRepository;
+    private final ResultRepository resultRepository;
+
+    public LottoService(LottoRepository lottoRepository, ResultRepository resultRepository) {
+        this.lottoRepository = lottoRepository;
+        this.resultRepository = resultRepository;
+    }
 
     public List<LottoDto> buyLotto(String inputMoney, String manualNumbers) {
         money = new Money(parseInt(inputMoney));
@@ -36,16 +43,21 @@ public class LottoService {
         IntegratedLottoGenerator integratedLottoGenerator =
                 new IntegratedLottoGenerator(manualLottoGenerator.generateLotto(), autoLottoGenerator.generateLotto());
 
-        lottos = integratedLottoGenerator.toDto().getLottos();
-        return lottos;
+        lottoRepository.saveAll(integratedLottoGenerator.getLottos());
+
+        return integratedLottoGenerator.toDto().getLottos();
     }
 
     public LottosResult matchLotto(String winningNumber, String bonusNumber) {
         WinningLotto winningLotto = LottoGenerator.generateWinningLotto(winningNumber, parseInt(bonusNumber));
+        List<Lotto> lottos = lottoRepository.findAll();
+
         Map<Rank, Integer> rankCount = winningLotto.calculateWinningCount(
                 lottos.stream()
                         .map(i -> new Lotto(i.getNumbers()))
                         .collect(Collectors.toList()));
+        resultRepository.save(rankCount);
+
         double totalRateOfReturn = money.calculateTotalRateOfReturn(rankCount);
 
         return new LottosResult(rankCount, totalRateOfReturn);
